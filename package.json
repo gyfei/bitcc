@@ -34,7 +34,10 @@
     "nconf": "*",
     "express": "*",
     "uglify-js": "*",
-    "uglifycss": "*"
+    "uglifycss": "*",
+    "errorhandler": "*",
+    "body-parser": "*",
+    "method-override": "*"
   },
   "devDependencies": {
     "grunt-simple-mocha": "~0.2.0",
