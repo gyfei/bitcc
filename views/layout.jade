@@ -1,0 +1,32 @@
+doctype html
+html(lang='en')
+  head
+    include includes/head
+
+  body
+    .navbar.navbar-fixed-top
+        .navbar-inner
+            .container
+                a.btn.btn-navbar(data-toggle="collapse", data-target=".nav-collapse")
+                    span.icon-bar
+                    span.icon-bar
+                    span.icon-bar
+                a.brand bitcc
+                .nav-collapse
+                ul.nav
+                    li.active
+                        a(href="/") Home
+
+    .container
+
+        block content
+
+        block footer
+            footer.page-footer
+                p &copy; bitcc 2014
+
+
+    script(src='/components/jquery/jquery.min.js')
+    script(src='/components/bootstrap/docs/assets/js/bootstrap.min.js')
+    script(src='/js/site.js')
+    block scripts

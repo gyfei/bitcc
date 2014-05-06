@@ -1,0 +1,46 @@
+{
+  "name": "bitcc",
+  "description": "bitcc",
+  "version": "0.1.0",
+  "homepage": "",
+  "author": {
+    "name": "ocau"
+  },
+  "repository": {
+    "type": "git",
+    "url": "none"
+  },
+  "bugs": {
+    "url": ""
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "/blob/master/LICENSE-MIT"
+    }
+  ],
+  "main": "lib/bitcc",
+  "engines": {
+    "node": ">= 0.6.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "dependencies": {
+    "connect-cachify": "*",
+    "winston": "*",
+    "winston-request-logger": "*",
+    "jade": "*",
+    "nconf": "*",
+    "express": "*",
+    "uglify-js": "*",
+    "uglifycss": "*"
+  },
+  "devDependencies": {
+    "grunt-simple-mocha": "~0.2.0",
+    "mocha": "~1.6.0",
+    "should": "~1.2.0",
+    "grunt": "~0.3.17"
+  },
+  "keywords": []
+}
