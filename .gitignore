@@ -1,0 +1,10 @@
+.DS_Store
+*.log
+*.csv
+*.dat
+*.out
+*.swp
+testing
+node_modules/
+test.js
+.idea
