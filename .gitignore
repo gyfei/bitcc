@@ -4,6 +4,7 @@
 *.dat
 *.out
 *.swp
+test
 testing
 node_modules/
 test.js
