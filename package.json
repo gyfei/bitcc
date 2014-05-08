@@ -37,8 +37,7 @@
     "uglifycss": "*",
     "errorhandler": "*",
     "body-parser": "*",
-    "method-override": "*",
-    "nodemon": "*"
+    "method-override": "*"
   },
   "devDependencies": {
     "grunt-simple-mocha": "~0.2.0",
