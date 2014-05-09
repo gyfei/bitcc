@@ -1,5 +1,7 @@
 # bitcc
 
+starts with the template
+
 bitcc
 
 These project include:
