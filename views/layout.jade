@@ -14,8 +14,10 @@ html(lang='en')
                 a.brand bitcc
                 .nav-collapse
                 ul.nav
-                    li.active
+                    li(class=title=='bitcc'?'active':undefined)
                         a(href="/") Home
+                    li(class=title=='Node Status - bitcc'?'active':undefined)
+                        a(href="/node") Node
 
     .container
 

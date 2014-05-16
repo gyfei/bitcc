@@ -37,7 +37,8 @@
     "uglifycss": "*",
     "errorhandler": "*",
     "body-parser": "*",
-    "method-override": "*"
+    "method-override": "*",
+    "bitcore": "*"
   },
   "devDependencies": {
     "grunt-simple-mocha": "~0.2.0",
