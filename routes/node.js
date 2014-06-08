@@ -23,7 +23,7 @@ module.exports = function(app) {
       		}
       		console.log(ret);
             res.render('node', {
-        		title: 'Node Status - bitcc',
+        		title: 'Node Status',
         		connection_count: ret.result.connections,
         		blocks: ret.result.blocks,
         		difficulty: ret.result.difficulty,
