@@ -1,0 +1,23 @@
+extends layout
+
+block content
+    .header.jumbotron.subhead
+        .row
+            .span6
+                h1 Proof with Bitcoin Trusted Timstamping
+                body
+                div
+                form#dataForm(action='/decode_result', method='post')
+                  label
+                    p
+                    textarea.form-control(type="text", name="deData", id="deData", placeholder='input data here')
+                  p
+                  button.btn.btn-default(type="submit") Decode
+                
+
+
+
+                  
+
+                
+                

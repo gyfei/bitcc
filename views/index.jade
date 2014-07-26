@@ -3,5 +3,44 @@ extends layout
 block content
     .header.jumbotron.subhead
         .row
-            .span8.offset2
-                h4 Welcome to bitcc
+            
+                h1 Proof with Bitcoin Trusted Timstamping
+                body
+              
+                div
+                form#dataForm(action='/hash_data', method='post')
+                  label Please input some data:
+                    p
+                    input.form-control(type="text", name="userData", id="userData", placeholder='input some data here')
+                  p
+                  button.btn.btn-default(type="submit") Creat Timestamp
+              
+                br
+                div
+                form#fileForm(action='/hash_file', method='post')
+                  label Please select a file:
+                    p
+                    input.form-control(type="text", name="relaData", id="relaData", placeholder='input related information here')
+                    p
+                    input.form-control(type="file", name="userFile",  id="userFile", enctype="multipart/form-data", placeholder='select a file')
+                    
+                  p
+                  button.btn.btn-default(type="submit") Creat Timestamp
+           //
+                br
+                div
+                form#hashForm(action='/get_hash', method='post')
+                  label Please input a hash value:
+                    p
+                    input.form-control(type="text", name="hashValue", id="hashValue", placeholder='input the hash value here')
+                  p
+                  button.btn.btn-default(type="submit") Send the hash
+                  
+               
+
+
+
+                  
+
+                
+                

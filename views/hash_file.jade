@@ -1,0 +1,28 @@
+extends layout
+
+block content
+    .header.jumbotron.subhead
+        .row
+            
+                h1 Proof with Bitcoin Trusted Timstamping
+                body
+                br
+                p 
+                //p Digest: #{digest} 
+                strong Address
+                p 
+                  textarea.form-control.resized(readonly, name = "add_from_f", style='width:35%;', rows = 1) #{address_from_file} 
+                
+                p
+                b JSON Transaction
+                p
+                  // solved: textarea's size
+                  textarea.form-control(readonly, name = "j_tx", style='height:300px;width:100%;') #{tx}
+                b Raw Transaction
+                p
+                  // solved: textarea's size
+                  textarea.form-control(readonly, name = "r_tx", style='height:60px;width:100%;') #{r_tx}
+                a(href='/', title='this is hash page') back
+
+                
+           

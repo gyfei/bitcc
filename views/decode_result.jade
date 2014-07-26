@@ -1,0 +1,18 @@
+extends layout
+
+block content
+    .header.jumbotron.subhead
+        .row
+            .span6
+                h1 Proof with Bitcoin Trusted Timstamping
+                body
+                
+                //p Digest: #{digest}
+                br
+                p Before decode: #{decode_data}
+                br
+                p After decode: #{ori_data}
+               
+                a(href='/', title='this is hash page') back
+               
+
