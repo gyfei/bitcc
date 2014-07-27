@@ -152,15 +152,16 @@ module.exports = function(app) {
   
   app.post('/hash_file', function (req, res) {
     // get input file name
-    var file_name = req.body.userFile;
+    
     var rela_data = req.body.relaData;
+    var hash_of_file = new Buffer(req.body.fileHash); 
+         
+    if (hash_of_file!="") {
       
-    if (file_name!="") {
-      fs.readFile(file_name, "utf8",function (err, content) {
       
-        var file_hash = bitcore.util.sha256ripe160(content);
+        var file_hash = bitcore.util.ripe160(hash_of_file);
         var file_hash1 = file_hash.toString('hex');
-        var b_PUB_KEY = bitcore.util.sha256ripe160(content).toString('hex');
+        var b_PUB_KEY = bitcore.util.ripe160(hash_of_file).toString('hex');
         
         var version = bitcore.networks['livenet'].addressVersion;
         var addr = new bitcore.Address(version, file_hash);
@@ -187,16 +188,16 @@ module.exports = function(app) {
   var a_PUB_KEY = a_ADDR.toString('hex');
   //var script = Script.createPubKeyHashOut(addr.payload()).toString();
   //console.log(script);
-  var VAL = '0.00000001';
+  var VAL = '0';
   
 
   var txobj = {
-    hash: TXIN,    //------wrong: hash of this tx--------
+    hash: 0,
     ver: 1, 
     vin_sz: TXIN_N,
     vout_sz: 1,
     lock_time: 0, 
-    //size
+    size: 0,
     in: [],  
     out: []
   };
@@ -230,7 +231,7 @@ var txin = {
   var value = coinUtil.bigIntToValue(valueNum);
   var s = script.getBuffer();
   //var s1 = 'OP_DUP OP_HASH160 '+ b_PUB_KEY +' OP_EQUALVERIFY OP_CHECKSIG';
-  var s1 = 'OP_RETURN '+ 6269746363 + rela_hex;
+  var s1 = 'OP_RETURN '+ '6269746363' + rela_hex + file_hash1;
 
 
   var txout = {
@@ -246,19 +247,25 @@ var date = new Date();
 // Raw TX
   var ver_hex = '01000000';
   var tx_in_count = '00';
+
   var index = '00000000';
-  var script_length = txin.scriptSig.length;
+  var script_length = txin.scriptSig.length/2;
   var sequence = 'ffffffff';
+
   var tx_out_count = '01';
-  var val = 'c01c3d0900000000';
-  var pk_script_length = b_PUB_KEY.length/2;
-  var pk_script = b_PUB_KEY;
+  var val = value.toString('hex');
+  var pk_script = 6269746363 + rela_hex + file_hash1;
+  // pk_script_length should be turn to hex
+  var pk_script_length = (pk_script.length/2).toString(16);
+  var pk_length = (pk_script.length/2+2).toString(16);
   var lock_time = '00000000';
 
 //  nothing in txobj.in
 //  var raw_tx = ver_hex+tx_in_count+prev_out.hash+index+script_length+txin.scriptSig+sequence+tx_out_count+val+pk_script_length+pk_script+lock_time;        
-  var raw_tx = ver_hex+tx_in_count+tx_out_count+val+pk_script_length+pk_script+lock_time;        
-
+  // OP_RETURN's Opcode is 106(dec)=6a(hex)
+  var raw_tx = ver_hex+tx_in_count+tx_out_count+val+pk_length+'6a'+pk_script_length+pk_script+lock_time;        
+  txobj.size = raw_tx.length/2;
+  txobj.hash = bitcore.util.sha256(new Buffer(raw_tx)).toString('hex');
         res.render('hash_file.jade', {
            // rela: rela,
            // digest: file_hash,
@@ -268,7 +275,7 @@ var date = new Date();
             r_tx: raw_tx
         });
       
-    });}
+    }
   else{
     console.log('no file input');
     res.render("no_input");
