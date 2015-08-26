@@ -4,33 +4,31 @@ html(lang='en')
     include includes/head
 
   body
-    .navbar.navbar-fixed-top
+    .navbar.navbar-inverse.navbar-fixed-top
         .navbar-inner
             .container
                 a.btn.btn-navbar(data-toggle="collapse", data-target=".nav-collapse")
                     span.icon-bar
                     span.icon-bar
                     span.icon-bar
-                a.brand bitcc
+                a.brand myOrigami
                 .nav-collapse
                 ul.nav
-                    li(class=title=='bitcc'?'active':undefined)
-                        a(href="/") Home
-                    li(class=title=='Node Status'?'active':undefined)
-                        a(href="/node") Node
+                    li(class=title=='myOrigami'?'active':undefined)
+                        a(href="/my-origami") Home
+                    li(class=title=='Get Timestamp'?'active':undefined)
+                        a(href="/my-origami") Get Timestamp
+                    li(class=title=='Find my Origami'?'active':undefined)
+                        a(href="/find-ori") Find my Origami
+                    
 
     .container
 
         block content
 
         block footer
-            footer.navbar-fixed-bottom.container
-                .row
-                    .span4.offset4(style="text-align: center")
-                        a(href='https://blockchain.info/address/1oCaUmXQa8tsqWBkigo8sUALARXXUk2os') 1oCaUmXQa8tsqWBkigo8sUALARXXUk2os
-                        br
-                        a(href='http://abe.cryptocoinservice.net/address/MMehQ63ttURjjJynQoh7fQNwdg4V4gssAA') MMehQ63ttURjjJynQoh7fQNwdg4V4gssAA
-                        p &copy; bitcc 2014
+            footer.page-footer
+                p &copy; myOrigami 2015
 
 
     script(src='/components/jquery/jquery.min.js')

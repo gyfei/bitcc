@@ -13,298 +13,274 @@ module.exports = function(app) {
 
   // Home/main
   app.get('/', function(req, res) {
-    res.render('index', { title: 'bitcc' })
+    res.render('index', { title: 'myOri' })
  })
- 
-  app.get('/decode', function(req, res) {
-    res.render('decode', { title: 'decode' })
- })
-//---------------unsuccessful------------------
-//------problem in decoding to string----------
-  app.post('/decode_result', function(req, res) {
-    var de_data = req.body.deData;
-    if (de_data!="") {
-      var ori = new Buffer(de_data, 'utf8').toString();
-      res.render('decode_result', { 
-        title: 'decode',
-        decode_data: de_data,
-        ori_data: ori
-      })}
-    else{
-      console.log('no data input');
-      res.render("no_input");
-    }
- })
+
 
   app.post('/hash_data', function(req, res){  
       // get data from dataFrom in index.jade
       var user_data = req.body.userData;
+      // get sha256 hash from index.jade
+      var data_hash = new Buffer(req.body.dataHash);
+      var data_hash_2 = bitcore.crypto.Hash.sha256(data_hash);
+   
       if (user_data!="") {
-       //count sha256 and ripe160 of user_data
-        var hash_value = bitcore.util.sha256ripe160(user_data);
-        var hv_d = bitcore.util.sha256ripe160(user_data).toString('hex');
-      /*
-        // solve unrecognized code 
-          var hv_58 = bitcore.Base58.encode(hash_value);
-          console.log(String(hv_58));
-      */  
-        // add version
-        var version = bitcore.networks['livenet'].addressVersion;
-        // count address
-        var addr = new bitcore.Address(version, hash_value);
-        // use base58 to change address to string
-        var addrStr = addr.as('base58');
-        // console.log(addrStr);
-                
-//******************data***************************
+        // turn to big-endian
+        var bn = bitcore.crypto.BN.fromBuffer(data_hash_2);
+        // get address from String
+        var addr = new bitcore.PrivateKey(bn).toAddress();
+        console.log(addr);
+       
+        res.render('hash_data', {
+          address_from_data: addr.toString(),
+        });
+     }
+     else{
+      //console.log('no data input');
+      //res.render("no_input");
+    }
+  }) 
 
-// TX
-  var TXIN = 'd05f35e0bbc495f6dcab03e599c8f5e32a07cdb4bc76964de201d06a2a7d8265';
-  var TXIN_N = 1;
-  var ADDR = 'muHct3YZ9Nd5Pq7uLYYhXRAxeW4EnpcaLz';
-  var VAL = '0.05';
+
+  app.post('/hash_file', function (req, res) {
+    // get input file name
+    
+    var rela_data = req.body.relaData;
+    var rela_data_h = new Buffer(req.body.relaData); 
+    var hash_of_file = new Buffer(req.body.fileHash); 
+
+    var privateKey = new bitcore.PrivateKey('cRTvS7eVJDcRZmMRwi1JGtiV9VZzHCxA2KzuLKSkUhuyoytbn9UF');
+    var utxo = {
+      "txId" : "3c301599df90a0542018396ac9f26e14c01a978933e77399b1792e91856a4666",
+      "outputIndex" : 0,
+      "address" : "n1iytRHpXwvDpQmSHGP75Ji7NM4RuNgeew",
+      "script" : "",
+      "satoshis" : 10000 
+    };
+    //console.log(utxo);
+    
+    var tx_in_hash = 'cd 33 f0 ae 5d 74 f2 a6 d8 5b d8 69 85 65 a0 60 88 7c 30 68 ee 28 d7 59 e6 c9 02 1b 2c ea 66 ce';
+    var tx_in_hash_rv = tx_in_hash.split(" ").reverse().join("");
+    console.log(tx_in_hash_rv);
+
+
+
+    res.render('hash_file.jade', {
+           // rela: rela,
+           // digest: file_hash,
+            address_from_file: utxo.address,
+            tx: JSON.stringify(utxo, null, '\t'),
+            //r_tx: raw_tx
+        });
+   
+  })
+
+  app.get('/my-origami', function(req, res) {
+    res.render('my-origami', { title: 'myOrigami' })
+ })
+
+  app.post('/rawtx_out', function(req, res) {
+    var pro_crea_name = new Buffer(req.body.pro_crea_name);
+    var other_info = new Buffer(req.body.other_info); 
+    var prod_hash = req.body.prod_hash; 
+
+// Turn String to Hex
+    function stringToHex(str){
+      var val="";
+      for(var i = 0; i < str.length; i++){
+        if(val == "")
+          val = str.charCodeAt(i).toString(16);
+        else
+          val += "" + str.charCodeAt(i).toString(16);
+      }
+      return val;
+    }
+
+// Check if the size is 2 bytes, if not, add 0 before it 
+    function checkHex2bytes(str){
+      if(str.length < 2)
+        str = '0' + str;
+      else
+        str = str;
+      return str;
+    }
+
+
+    var hex_pro_crea_name = stringToHex(pro_crea_name.toString('utf8'));
+    var hex_other_info = stringToHex(other_info.toString('utf8'));
+
+    var prev_hash = '2d f4 78 69 2a 83 f6 4f fc f0 ce f8 79 e4 75 34 43 11 23 eb 1e 56 5e d8 3a a0 79 2d f0 28 7b d3';
+    var prev_hash_rv = prev_hash.split(" ").reverse().join("");
+      console.log(prev_hash_rv);
+
+  //--------Script-------------------------------------
+
+    var OP_RETURN = '6a';         // 0x6a = 109
+
+    var OP_DUP = '76';            // 0x76 = 118
+    var OP_HASH160 = 'a9';        // 0xa9 = 169
+    var OP_EQUALVERIFY = '88';    // 0x88 = 136
+    var OP_CHECKSIG = 'ac';       // 0xac = 172
+
+  //--------Script End---------------------------------
+
+
+  //-----------Raw TX Begin--------------------
+    var fee = '64000000';          // 0.0000100 BTC
+
+    var version_no = '01000000';
+    var tx_in_count = '01';
+      var prev_in = prev_hash_rv;
+      var txin_index = '03000000';
+    var script_length = '00';
+
+    var tx_in = tx_in_count + prev_in + txin_index + script_length;
+    var sequence = 'ffffffff';
+
+    var tx_out_count = '04';
+    // Output 0: usual output, send the change back
+    var value_0 = 'd8c4cc1d00000000'; // change
+
+    var pubKeyHash = '8ddeebf1fa6d679f00607c599670d55da7a1f66e';  // Kou
+    var pubKeyHash_size = checkHex2bytes((pubKeyHash.length/2).toString(16));
+    var scri_0 = OP_DUP + OP_HASH160 + pubKeyHash_size + pubKeyHash + OP_EQUALVERIFY + OP_CHECKSIG;
+    var scri_0_size = (scri_0.length/2).toString(16);
   
+    var script_0 = value_0 + scri_0_size + scri_0;
+ 
+    var de_scri_0 = "OP_DUP OP_HASH160 " + pubKeyHash_size + pubKeyHash + " OP_EQUALVERIFY OP_CHECKSIG";
+    //---------------Output 0---------------------
+
+    // Output 1: title, creator
+    // OP_RETURN
+    var value_1 = '0000000000000000';   // Modify, change to big-endian by using bitcore API
+    var name_size = checkHex2bytes((hex_pro_crea_name.length/2).toString(16));
+    var scri_1 = OP_RETURN + name_size + hex_pro_crea_name;
+    var scri_1_size = (scri_1.length/2).toString(16);
+
+    var script_1 = value_1 + scri_1_size + scri_1;
+
+    var de_scri_1 = "OP_RETURN " + name_size + hex_pro_crea_name;
+    var decoded_1 = pro_crea_name.toString('utf8');
+    //-----------------Output 1-------------------
+
+    // Output 2: related info, like website, permission...
+    // OP_RETURN
+    var value_2 = '0000000000000000';   // 0.0001000 BTC
+    var rela_size = checkHex2bytes((hex_other_info.length/2).toString(16));
+    var scri_2 = OP_RETURN + rela_size + hex_other_info;
+    var scri_2_size = (scri_2.length/2).toString(16);
+
+    var script_2 = value_2 + scri_2_size + scri_2;
+
+    var de_scri_2 = "OP_RETURN " + rela_size + hex_other_info;
+    var decoded_2 = other_info.toString('utf8');
+    //-----------------Output 2-------------------
+
+
+    // Output 3: hash of the product
+    // OP_RETURN
+    var value_3 = '0000000000000000'; // 0.0001000 BTC
+    var phash_size = checkHex2bytes((prod_hash.length/2).toString(16));
+    var scri_3 = OP_RETURN + phash_size + prod_hash;
+    var scri_3_size = (scri_3.length/2).toString(16);
+
+    var script_3 = value_3 + scri_3_size + scri_3;
+
+    var de_scri_3 = "OP_RETURN " + phash_size + prod_hash;
+    var decoded_3 = prod_hash.toString('utf8');
+    //-----------------Output 3-------------------
+
+    var tx_out = tx_out_count + script_0 + script_1 + script_2 + script_3;
+
+    var locktime = '00000000';
+
+    var ori_raw_tx = version_no + tx_in + sequence + tx_out + locktime;
+
+    //console.log(ori_raw_tx);
+
+  //-----------Raw TX End----------------------
+
+
+  //----------- JSON TX Start -------------------
   var txobj = {
-    hash: TXIN, 
+    hash: prev_hash.split(" ").join(""),
     ver: 1, 
-    vin_sz: TXIN_N,
-    vout_sz: 1,
-    lock_time: 0, 
-    //size: Buffer.length,
-    in: [],  
-    out: []
+    vin_sz: parseInt(tx_in_count),
+    vout_sz: parseInt(tx_out_count),
+    lock_time: parseInt(locktime), 
+    size: 0,
+    inputs: [],  
+    outputs: []
   };
 
   var txin = {
     prev_out: []
   };
-
-  var prev_out = {
-    index: 0,
-    hash: TXIN
-  }
-  txin.prev_out.push(prev_out);
-  
-  var hash = new Buffer(TXIN.split('').reverse(), 'hex');
-  var vout = parseInt(TXIN_N);
-  var voutBuf = new Buffer(4);
-
-  voutBuf.writeUInt32LE(vout, 0);
-  // concat: connect two or more arrays
-  // -----------change to hex, but may be wrong-------------
-  var cipher = crypto.createCipher('aes-256-cbc','InmbuvP6Z8')
-  var text = bitcore.Base58.encode(Buffer.concat([hash, voutBuf]));
-  var crypted = cipher.update(text,'utf8','hex')
-    crypted += cipher.final('hex')
-  // -----------may be wrong-------------
-
-   txin.scriptSig =crypted;
-
-  txobj.in.push(txin);
-
-  
-  var script = Script.createPubKeyHashOut(addr.payload());
-  var valueNum = coinUtil.parseValue(VAL);
-  var value = coinUtil.bigIntToValue(valueNum);
-  var s = script.getBuffer();
-  var s1 = 'OP_DUP OP_HASH160 '+ hv_d +' OP_EQUALVERIFY OP_CHECKSIG';
-
-  var txout = {
-    //v: bitcore.Base58.encode(value),
-    value: VAL,
-    scriptPubKey: s1
-  };
-  txobj.out.push(txout);
-
-//*****************data**************************************
-  
-// Raw TX
-  var ver_hex = '01000000';
-  var tx_in_count = '01';
-  var index = '00000000';
-  var script_length = txin.scriptSig.length;
-  var sequence = 'ffffffff';
-  var tx_out_count = '01';
-  var val = 'c01c3d0900000000';
-  var pk_script_length = hv_d.length;
-  var pk_script = hv_d;
-  var lock_time = '00000000';
-
-  var raw_tx = ver_hex+tx_in_count+prev_out.hash+index+script_length+txin.scriptSig+sequence+tx_out_count+val+pk_script_length+pk_script+lock_time;
-
-        res.render('hash_data', {
-          address_from_data: addrStr,
-          tx: JSON.stringify(txobj, null, 4),
-          r_tx: raw_tx
-          //digest: hash_value,
-        });
-     }
-     else{
-      console.log('no data input');
-      res.render("no_input");
+    var prev_out = {
+      index: txin_index,
+      hash: prev_hash_rv
     }
-  }) 
+    txin.prev_out.push(prev_out);
+  txobj.inputs.push(txin);
 
-  app.get('/no_input', function(req, res) {
-     res.render('no_input');
- })
 
-  
-  app.post('/hash_file', function (req, res) {
-    // get input file name
+  var txout_0 = {
+    value: value_0,
+    scriptPubKey: scri_0,
+    script_type: "pay-to-pubkey-hash",
+    output_scripts: de_scri_0
+  };
+  txobj.outputs.push(txout_0);
+
+  var txout_1 = {
+    value: value_1,
+    scriptPubKey: scri_1,
+    script_type: "Data output",
+    output_scripts: de_scri_1,
+    decoded: decoded_1
+  };
+  txobj.outputs.push(txout_1);
+
+  var txout_2 = {
+    value: value_2,
+    scriptPubKey: scri_2,
+    script_type: "Data output",
+    output_scripts: de_scri_2,
+    decoded: decoded_2
+  };
+  txobj.outputs.push(txout_2);
+
+  var txout_3 = {
+    value: value_3,
+    scriptPubKey: scri_3,
+    script_type: "Data output",
+    output_scripts: de_scri_3,
+    decoded: decoded_3
+  };
+  txobj.outputs.push(txout_3);
     
-    var rela_data = req.body.relaData;
-    var hash_of_file = new Buffer(req.body.fileHash); 
-         
-    if (hash_of_file!="") {
-      
-      
-        var file_hash = bitcore.util.ripe160(hash_of_file);
-        var file_hash1 = file_hash.toString('hex');
-        var b_PUB_KEY = bitcore.util.ripe160(hash_of_file).toString('hex');
-        
-        var version = bitcore.networks['livenet'].addressVersion;
-        var addr = new bitcore.Address(version, file_hash);
-/*
-        var cipher = crypto.createCipher('aes-256-cbc','InmbuvP6Z8')
-        var text = rela_data;
-        var crypted = cipher.update(text,'utf8','hex')
-        crypted += cipher.final('hex')
-        var decipher = crypto.createDecipher('aes-256-cbc','InmbuvP6Z8')
-        var dec = decipher.update(crypted,'hex','utf8')
-        dec += decipher.final('utf8')
-*/
-        var rela = new Buffer(rela_data).toString('base64');
-        var rela_hex = new Buffer(rela_data).toString('hex');
-        var ori_rela = new Buffer(rela, 'base64').toString();
-       
-
-      //***************file******************************
-
-  var TXIN = 'd05f35e0bbc495f6dcab03e599c8f5e32a07cdb4bc76964de201d06a2a7d8265';
-  var TXIN_N = 0;
-  var a_PRI_KEY = '5JE9hcdLpziG5SPeJzGMUekXmhjtD2i8Rq1BC9W1kQ5Fe7HbnXZ';
-  var a_ADDR = '1NRgoiEU3kGb9TQx8yUMByEwVek4w4m4u9';
-  var a_PUB_KEY = a_ADDR.toString('hex');
-  //var script = Script.createPubKeyHashOut(addr.payload()).toString();
-  //console.log(script);
-  var VAL = '0';
-  
-
-  var txobj = {
-    hash: 0,
-    ver: 1, 
-    vin_sz: TXIN_N,
-    vout_sz: 1,
-    lock_time: 0, 
-    size: 0,
-    in: [],  
-    out: []
-  };
-
-var txin = {
-    prev_out: []
-  };
-
-  var prev_out = {
-    index: 0,
-    hash: TXIN
-  }
-  txin.prev_out.push(prev_out);
-
-  
-  //var hash = new Buffer(TXIN.split('').reverse(), 'hex');
-  var hash_f = TXIN.split('').reverse();
-  var vout = parseInt(TXIN_N);
-  var voutBuf = new Buffer(4);
-
-  voutBuf.writeUInt32LE(vout, 0);
-  // concat: connect two or more arrays
-  var pripub = new Buffer(a_PRI_KEY+a_PUB_KEY, 'base64');
-  txin.scriptSig = pripub.toString('hex');
-  // nothing in txobj.in without the command below
-  //txobj.in.push(txin);
-
-  
-  var script = Script.createPubKeyHashOut(addr.payload());
-  var valueNum = coinUtil.parseValue(VAL);
-  var value = coinUtil.bigIntToValue(valueNum);
-  var s = script.getBuffer();
-  //var s1 = 'OP_DUP OP_HASH160 '+ b_PUB_KEY +' OP_EQUALVERIFY OP_CHECKSIG';
-  var s1 = 'OP_RETURN '+ '6269746363' + rela_hex + file_hash1;
+  //----------- JSON TX End ---------------------
 
 
-  var txout = {
-    //v: bitcore.Base58.encode(value),
-    value: VAL,
-    scriptPubKey: s1
-  };
-  txobj.out.push(txout);
-var date = new Date();
 
-//********************file*********************************** 
 
-// Raw TX
-  var ver_hex = '01000000';
-  var tx_in_count = '00';
 
-  var index = '00000000';
-  var script_length = txin.scriptSig.length/2;
-  var sequence = 'ffffffff';
 
-  var tx_out_count = '01';
-  var val = value.toString('hex');
-  var pk_script = 6269746363 + rela_hex + file_hash1;
-  // pk_script_length should be turn to hex
-  var pk_script_length = (pk_script.length/2).toString(16);
-  var pk_length = (pk_script.length/2+2).toString(16);
-  var lock_time = '00000000';
 
-//  nothing in txobj.in
-//  var raw_tx = ver_hex+tx_in_count+prev_out.hash+index+script_length+txin.scriptSig+sequence+tx_out_count+val+pk_script_length+pk_script+lock_time;        
-  // OP_RETURN's Opcode is 106(dec)=6a(hex)
-  var raw_tx = ver_hex+tx_in_count+tx_out_count+val+pk_length+'6a'+pk_script_length+pk_script+lock_time;        
-  txobj.size = raw_tx.length/2;
-  txobj.hash = bitcore.util.sha256(new Buffer(raw_tx)).toString('hex');
-        res.render('hash_file.jade', {
-           // rela: rela,
-           // digest: file_hash,
-            address_from_file: addr,
-            time: date.toLocaleString(),
-            tx: JSON.stringify(txobj, null, '\t'),
-            r_tx: raw_tx
-        });
-      
-    }
-  else{
-    console.log('no file input');
-    res.render("no_input");
-   }
-})
 
-/*  // if input is hash value
-   app.post('/get_hash', function(req, res){  
-      var hashValue = req.body.hashValue;
-      //console.log(user_data.toString());
 
-        // add check if input value is a hash value
-      if (hashValue!="") {
-        var hash_value = bitcore.util.sha256ripe160(hashValue);
 
-        var version = bitcore.networks['livenet'].addressVersion;
-          console.log(hash_value);
-        var addr = new bitcore.Address(version, hash_value);
-        var addrStr = addr.as('base58');
-                
-        res.render('hash', {
-          digest: String(hash_value),
-          address: addrStr
-        });
-     }
-     else{
-      console.log('no data input');
-      res.render("no_input");
-    }
-  }) 
-*/
+
+
+
+
+    res.render('rawtx_out', {
+           p_c: pro_crea_name, 
+           r_info: other_info,
+           p_hash: prod_hash,
+           ori_raw_tx: ori_raw_tx,
+           json_tx: JSON.stringify(txobj, null, '\t'),
+          });
+ })
 }

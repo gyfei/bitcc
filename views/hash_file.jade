@@ -9,15 +9,11 @@ block content
                 br
                 p 
                 //p Digest: #{digest} 
-                //strong Address
-                //p 
-                //  textarea.form-control.resized(readonly, name = "add_from_f", style='width:35%;', rows = 1) #{address_from_file} 
-                
-                p
                 b JSON Transaction
                 p
                   // solved: textarea's size
                   textarea.form-control(name = "j_tx", style='height:300px;width:100%;') #{tx}
+        //
                 b Raw Transaction
                 p
                   // solved: textarea's size

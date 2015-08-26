@@ -1,0 +1,308 @@
+var bitcore = require('bitcore');
+var fs = require('fs');
+
+var networks = bitcore.networks;
+var Peer = bitcore.Peer;
+var Transaction = bitcore.Transaction;
+var Address = bitcore.Address;
+var Script = bitcore.Script;
+var coinUtil = bitcore.util;
+var crypto = require('crypto');
+
+module.exports = function(app) {
+
+  // Home/main
+  app.get('/', function(req, res) {
+    res.render('index', { title: 'bitcc' })
+ })
+
+
+  app.post('/hash_data', function(req, res){  
+      // get data from dataFrom in index.jade
+      var user_data = req.body.userData;
+      var data_hash = new Buffer(req.body.dataHash, 'hex');
+      if (user_data!="") {
+       //count ripe160 of user_data
+
+        var hash_value = bitcore.util.ripe160(data_hash);
+        console.log(req.body.dataHash);
+        //console.log(hash_value);
+        var hv_hex = hash_value.toString('hex');
+        console.log(hv_hex);
+      /*
+        // solve unrecognized code 
+          var hv_58 = bitcore.Base58.encode(hash_value);
+          console.log(String(hv_58));
+      */  
+        // add version
+        var version = bitcore.networks['livenet'].addressVersion;
+        
+        // count address
+        var addr = new bitcore.Address(version, hash_value);
+
+        // use base58 to change address to string
+        // var addrStr = addr.as('base58');  // or addr.toString();
+        // console.log(addrStr);
+
+        res.render('hash_data', {
+          address_from_data: addr.toString(),
+        });
+     }
+     else{
+      console.log('no data input');
+      //res.render("no_input");
+    }
+  }) 
+
+  app.get('/no_input', function(req, res) {
+     res.render('no_input');
+ })
+
+  
+  app.post('/hash_file', function (req, res) {
+    // get input file name
+    
+    var rela_data = req.body.relaData;
+    var rela_data_h = new Buffer(req.body.relaData); 
+    var hash_of_file = new Buffer(req.body.fileHash); 
+         
+    if (hash_of_file!="") {
+      var file_hash = bitcore.util.sha256(hash_of_file);
+      var file_hash1 = file_hash.toString('hex').substring(0,16);
+      console.log(file_hash1);
+      var b_PUB_KEY = bitcore.util.ripe160(hash_of_file).toString('hex');
+        
+      var version = bitcore.networks['livenet'].addressVersion;
+      var addr = new bitcore.Address(version, file_hash);
+/*
+        var cipher = crypto.createCipher('aes-256-cbc','InmbuvP6Z8')
+        var text = rela_data;
+        var crypted = cipher.update(text,'utf8','hex')
+        crypted += cipher.final('hex')
+        var decipher = crypto.createDecipher('aes-256-cbc','InmbuvP6Z8')
+        var dec = decipher.update(crypted,'hex','utf8')
+        dec += decipher.final('utf8')
+*/
+      var rela_hex = new Buffer(rela_data).toString('hex');
+      //console.log(rela_hex);   
+      var rela_hash = bitcore.util.ripe160(rela_data_h).toString('hex'); 
+     // console.log(rela_hash);
+      var rela_hash_20 = rela_hash.substring(0, 20);
+      //console.log(rela_hash_20);
+      //***************file_begin******************************
+
+  var TXIN = 'd05f35e0bbc495f6dcab03e599c8f5e32a07cdb4bc76964de201d06a2a7d8265';
+  var TXIN_N = 0;
+  var a_PRI_KEY = '5JE9hcdLpziG5SPeJzGMUekXmhjtD2i8Rq1BC9W1kQ5Fe7HbnXZ';
+  var a_ADDR = '1NRgoiEU3kGb9TQx8yUMByEwVek4w4m4u9';
+  var a_PUB_KEY = a_ADDR.toString('hex');
+  //var script = Script.createPubKeyHashOut(addr.payload()).toString();
+  //console.log(script);
+  var VAL = 0;
+  var VAL3 = 0;
+
+  var txobj = {
+    hash: 0,
+    ver: 1, 
+    vin_sz: TXIN_N,
+    vout_sz: 3,
+    lock_time: 0, 
+    size: 0,
+    in: [],  
+    out: []
+  };
+
+var txin = {
+    prev_out: []
+  };
+
+  var prev_out = {
+    index: 0,
+    hash: TXIN
+  }
+  txin.prev_out.push(prev_out);
+
+  
+  //var hash = new Buffer(TXIN.split('').reverse(), 'hex');
+  var hash_f = TXIN.split('').reverse();
+  var vout = parseInt(TXIN_N);
+  var voutBuf = new Buffer(4);
+
+  voutBuf.writeUInt32LE(vout, 0);
+  // concat: connect two or more arrays
+  var pripub = bitcore.Base58.encode(a_PRI_KEY+a_PUB_KEY);
+  txin.scriptSig = pripub.toString('hex');
+  // nothing in txobj.in without the command below
+     //txobj.in.push(txin);
+
+  
+  var script = Script.createPubKeyHashOut(addr.payload());
+  var valueNum1 = coinUtil.parseValue(VAL);
+  var value1 = coinUtil.bigIntToValue(valueNum1);
+  
+  var valueNum3 = coinUtil.parseValue(VAL3);
+  
+  var value3 = coinUtil.bigIntToValue(valueNum3);
+
+  var s = script.getBuffer();
+  //var s1 = 'OP_RETURN '+ 45434243 + rela_hex + file_hash1;
+  //var s1 = 'OP_RETURN '+ 45434243 + '0006' + rela_hash_20 + file_hash1 + '000000';
+  var s1 = 'OP_RETURN '+ 45434243 + '0006' + '496d70726f76656f664454415f47616f' + file_hash1 + '000000';
+  
+  //var s1 = 'OP_RETURN '+ 45434243 + rela_hex;
+  //var s2 = 'OP_RETURN '+ 45434243 + file_hash1;
+  var s3 = 'OP_DUP '+'OP_HASH160 '+'f1ee902ffa5df895ff07a55f6bfe0adeabedc84d '+'OP_EQUALVERIFY '+'OP_CHECKSIG';
+
+
+  var txout = {
+    //v: bitcore.Base58.encode(value),
+    value: VAL,
+    scriptPubKey: s1
+  };
+  txobj.out.push(txout);
+  /*
+  var txout = {
+    //v: bitcore.Base58.encode(value),
+    value: VAL3,
+    scriptPubKey: s3
+  };
+  txobj.out.push(txout);
+*/
+//********************file_end*********************************** 
+
+// Raw TX
+  var ver_hex = '01000000';
+  var tx_in_count = '01';
+  var hash_in = '34b5f7e86caea9800fb6b6b03a1b6b40c5b188f698dec6aef22d479245392211';
+ // var tx_in_hash = coinUtil.bigIntToValue(coinUtil.parseValue(hash_in)).toString();
+  var hash_in2 = new Buffer(hash_in.split('').reverse(), 'hex');
+  //0.00001
+  var tx_in_hash = '34 b5 f7 e8 6c ae a9 80 0f b6 b6 b0 3a 1b 6b 40 c5 b1 88 f6 98 de c6 ae f2 2d 47 92 45 39 22 11';
+  
+  // 0.00005
+  //var tx_in_hash = '8f 6f b7 d5 09 23 30 f5 2d 0d 14 ce 5d 2c 21 66 ca 7c dd 2c 60 c4 19 a2 0b 06 49 58 e3 3a cb 47';
+  
+  //0.0001
+  //var tx_in_hash = '3d 54 22 c0 5a ac d4 e1 9b 28 30 41 e6 09 cd 10 c4 06 04 00 7e fa 92 35 e4 74 42 68 12 b1 1d a5';
+  //0.0005
+  //var tx_in_hash = '40 21 90 1c d5 56 28 7b 9f 5c 6f 82 6d 2a 0b b5 33 c7 9a f9 5a 0a a5 18 28 1b 34 38 5e 65 9a 19';
+
+  //0.001
+  //var tx_in_hash = 'eb 3b 4c e9 ea 45 3f d7 f1 f2 8d d5 c9 c9 ef 99 b4 6b 91 6b bb 60 0b 42 bd 5c f6 36 6a d5 b2 6e';
+
+  var tx_in_hash_rv = tx_in_hash.split(" ").reverse().join("");
+  
+  var index = '08000000';
+  var script_length = '00';
+  var sequence = 'ffffffff';
+
+  // 1 output
+/*
+  var tx_out_count = '01';
+  var val = value.toString('hex');
+  var pk_script = 45434243 + rela_hex + file_hash1;
+  // pk_script_length should be turn to hex
+  var pk_script_length = (pk_script.length/2).toString(16);
+  var pk_length = (pk_script.length/2+2).toString(16);
+  var lock_time = '00000000';
+
+//  nothing in txobj.in
+//  var raw_tx = ver_hex+tx_in_count+prev_out.hash+index+script_length+txin.scriptSig+sequence+tx_out_count+val+pk_script_length+pk_script+lock_time;        
+  
+  // OP_RETURN's opcode is 106(dec)=6a(hex)
+  var raw_tx = ver_hex+tx_in_count+tx_out_count+val+pk_length+'6a'+pk_script_length+pk_script+lock_time;        
+  txobj.size = raw_tx.length/2;
+  txobj.hash = bitcore.util.sha256(new Buffer(raw_tx)).toString('hex');
+*/
+
+// 2 outputs
+  var tx_out_count = '02';
+  var val_1 = value1.toString('hex');
+  
+  var val_3 = value3.toString('hex')
+//4249544343  bitcc
+  var pk_script_1 = 45434243 + '0006' + '496d70726f76656f664454415f47616f' + file_hash1;
+  //var pk_script_1 = 45434243 + rela_hex;
+  var pk_script_length_1 = (pk_script_1.length/2).toString(16);
+  var pk_length_1 = (pk_script_1.length/2+2).toString(16);
+/*
+  var pk_script_2 = 45434243 + file_hash1;
+  var pk_script_length_2 = (pk_script_2.length/2).toString(16);
+  var pk_length_2 = (pk_script_2.length/2+2).toString(16);
+*/
+  var pk_script_3 = 'f1ee902ffa5df895ff07a55f6bfe0adeabedc84d';
+  var pk_script_length_3 = (pk_script_3.length/2).toString(16);
+  var pk_length_3 = (25).toString(16);
+
+  var lock_time = '00000000';
+  
+  var raw_tx = ver_hex+tx_in_count+tx_in_hash_rv+index+script_length+sequence+tx_out_count+val_1+pk_length_1+'6a'+pk_script_length_1+pk_script_1+val_3+pk_length_3+'76'+'a9'+pk_script_length_3+pk_script_3+'88'+'ac'+lock_time;        
+  //var raw_tx = ver_hex+tx_in_count+tx_in_hash_rv+index+script_length+sequence+tx_out_count+val_1+pk_length_1+'6a'+pk_script_length_1+pk_script_1+lock_time;        
+  //val_3+pk_length_3+'76'+'a9'+pk_script_length_3+pk_script_3+'88'+'ac'+
+  txobj.size = raw_tx.length/2;
+  
+
+
+        res.render('hash_file.jade', {
+           // rela: rela,
+           // digest: file_hash,
+            address_from_file: addr,
+            tx: JSON.stringify(txobj, null, '\t'),
+            r_tx: raw_tx
+        });
+      
+    }
+  else{
+    console.log('no file input');
+    //res.render("no_input");
+   }
+})
+
+/*  // if input is hash value
+   app.post('/get_hash', function(req, res){  
+      var hashValue = req.body.hashValue;
+      //console.log(user_data.toString());
+
+        // add check if input value is a hash value
+      if (hashValue!="") {
+        var hash_value = bitcore.util.sha256ripe160(hashValue);
+
+        var version = bitcore.networks['livenet'].addressVersion;
+          console.log(hash_value);
+        var addr = new bitcore.Address(version, hash_value);
+        var addrStr = addr.as('base58');
+                
+        res.render('hash', {
+          digest: String(hash_value),
+          address: addrStr
+        });
+     }
+     else{
+      console.log('no data input');
+      res.render("no_input");
+    }
+  }) 
+*/
+}
+
+/* 
+  app.get('/decode', function(req, res) {
+    res.render('decode', { title: 'decode' })
+ })
+//---------------unsuccessful------------------
+//------problem in decoding to string----------
+  app.post('/decode_result', function(req, res) {
+    var de_data = req.body.deData;
+    if (de_data!="") {
+      var ori = new Buffer(de_data, 'utf8').toString();
+      res.render('decode_result', { 
+        title: 'decode',
+        decode_data: de_data,
+        ori_data: ori
+      })}
+    else{
+      console.log('no data input');
+      res.render("no_input");
+    }
+ })
+*/

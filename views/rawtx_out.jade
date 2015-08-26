@@ -1,0 +1,27 @@
+extends layout
+
+block content
+    .header.jumbotron.subhead
+        .row
+            
+                h1 Proof with Bitcoin Trusted Timstamping
+                h4 Raw Transaction & JSON Transaction
+                body
+                br
+                p 
+                b Related information 
+                p          
+                  textarea.form-control(name = "j_tx", style='height:100px;width:100%;', readonly) 
+                    | Production and creator: #{p_c}
+                    | About: #{r_info} 
+                    | Production: #{p_hash}
+                b Raw Transaction
+                p          
+                  textarea.form-control(name = "j_tx", style='height:100px;width:100%;') 
+                    | #{ori_raw_tx}
+                 b JSON Transaction   (TODO)
+                p          
+                  textarea.form-control(name = "j_tx", style='height:300px;width:100%;') 
+                    | #{json_tx}
+       
+           

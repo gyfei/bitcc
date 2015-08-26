@@ -4,57 +4,84 @@ block content
     .header.jumbotron.subhead
         .row
             
-                h1 Proof with Bitcoin Trusted Timstamping
+                h1 Proof with Blockchain -- Trusted Timstamping
                 body
               
-                div
+                div#datapart
                 form#dataForm(action='/hash_data', method='post')
                   label Please input some data:
                     p
                     input.form-control(type="text", name="userData", id="userData", placeholder='input some data here')
-                  p
-                  button.btn.btn-default(type="submit") Create Timestamp
-              
-                br
-                div
-                form#fileForm(action='/hash_file', method='post')
-                  label Input title and writer:
+                  label#hod Hash of data:
                     p
-                    input.form-control(type="text", name="relaData", id="relaData", placeholder='input related information here')
+                    textarea.form-control(type="text", name="dataHash", id="dataHash", style='height:50px;width:500px;')
+                    br
+                    script(src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha256.js")
+                    script(src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/ripemd160.js")
+                    script.
+                      document.getElementById("hod").style.display="none";
+                      function count_dataHash(){
+                        var userData = document.getElementById("userData").value;
+                        var dataHash = CryptoJS.SHA256(userData);
+                        if(userData != ""){
+                          document.getElementById("dataHash").value = dataHash;
+                          document.getElementById("hod").style.hidden="block"; // hidden
+                        }
+                        else{
+                          alert("Please input some data.");
+                        }
+                      }
+                  label  
+                    p
+                    button.btn.btn-default(type="submit", onclick='count_dataHash()') Create Timestamp
+
+                br
+                div#filepart
+                form#fileForm(action='/hash_file', method='post') 
+                  label Input your name and your production's name:
+                    p
+                    input.form-control(type="text", name="relaData", id="relaData")
                   label Please select a file:
                     p
                     input.form-control(type="file", name="userFile",  id="userFile", enctype="multipart/form-data", placeholder='select a file')
-                  label File hash:
+                  label#dof Digest of file:
                     p
-                    input.form-control(type="text", name="fileHash", id="fileHash")
-                  
+                    textarea.form-control(type="text", name="fileHash", id="fileHash", style='height:50px;width:500px;')
+                    br
                     script(src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha256.js")
                     script.
+                      document.getElementById("dof").style.display="none";
                       function handleFileSelect(evt) {
                         var files = evt.target.files; // FileList object
                         var output = [];
-                        for (var i = 0, f; f = files[i]; i++) {
-                          var reader = new FileReader();
-                          reader.onload = (function(theFile) {
-                            return function(e) {
-                              var element = document.getElementById('fileHash');
-                              element.value = CryptoJS.SHA256(e.target.result);
-                            };
-                          })(f);
-                          reader.readAsDataURL(f);
+                        if(files != ""){
+                          for (var i = 0, f; f = files[i]; i++) {
+                            var reader = new FileReader();
+                            reader.onload = (function(theFile) {
+                              return function(e) {
+                              //var div = document.createElement('span');
+                              //div.innerHTML = ['<p>', CryptoJS.SHA256(e.target.result)].join('');
+                              //document.getElementById('list').insertBefore(div, null);
+                              //var filehash = document.getElementById('list');
+                                var element = document.getElementById('fileHash');
+                                element.value = CryptoJS.SHA256(e.target.result);
+                                document.getElementById("dof").style.display="block";
+                              };
+                            })(f);
+                            reader.readAsDataURL(f);
+                          }
                         }
-                      }
-                      document.getElementById('userFile').addEventListener('change', handleFileSelect, false);
+                        else{
+                          alert("Please input some data.");
+                        }
+                       }
+                        document.getElementById('userFile').addEventListener('change', handleFileSelect, false);
+                  
+                  label  
                     p
                     button.btn.btn-default(type="submit") Create Timestamp
+                div#size.
                   
-
-              
-              
-      
-
-
-
            //
                 br
                 div

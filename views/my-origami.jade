@@ -1,0 +1,46 @@
+extends layout
+
+block content
+  body
+    .container
+      .jumbotron
+        h1 Proof with Blockchain -- Trusted Timstamping
+
+                div#filepart
+                form#fileForm(action='/rawtx_out', method='post') 
+                  label Input your production's name and your name (Less than 20 characters): (e.g. Crane by Karry)
+                    p
+                     input.form-control(type="text", name="pro_crea_name", id="pro_crea_name")
+                  label Input other information if necessary (Less than 20 characters): (e.g. xxxxx.com/)
+                    p
+                    input.form-control(type="text", name="other_info", id="other_info")
+                  label Please select your origami file:
+                    p
+                    input.form-control(type="file", name="userFile",  id="userFile", enctype="multipart/form-data", placeholder='select a file')
+                  label#dof Digest of file:
+                    p
+                    textarea.form-control(type="text", name="prod_hash", id="prod_hash", style='height:50px;width:500px;')
+                    br
+                    script(src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/ripemd160.js")
+                    script.
+                      document.getElementById("dof").style.display="none";
+                      function handleFileSelect(evt) {
+                        var files = evt.target.files; // FileList object
+                        var output = [];
+                          
+                          for (var i = 0, f; f = files[i]; i++) {
+                            var reader = new FileReader();
+                            reader.onload = (function(theFile) {
+                              return function(e) {
+                                var element = document.getElementById('prod_hash');
+                                element.value = CryptoJS.RIPEMD160(e.target.result);
+                                document.getElementById("dof").style.display="block";
+                              };
+                            })(f);
+                            reader.readAsDataURL(f);
+                          }
+                      }
+                      document.getElementById('userFile').addEventListener('change', handleFileSelect, false);
+                  label  
+                    p
+                    button.btn.btn-primary(type="submit") Create Transaction
