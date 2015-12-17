@@ -1,0 +1,30 @@
+extends layout
+
+block content
+    .header.jumbotron.subhead
+        .row
+            
+                h1 Intellectual Property Protection
+                h4 
+                  i Store your creation in a tamper-proof transaction
+                body
+                br
+                p 
+                b Related information about your file & Addresses
+                p          
+                  textarea.form-control(name = "j_tx", style='height:100px;width:50%;') 
+                    | File and creator: #{p_c}
+                    | About this file: #{r_info} 
+                    | File digest: #{p_hash}
+                  textarea.form-control(name = "j_tx", style='height:100px;width:40%;') 
+                    | Address 1: 18hJphL1u31APzE4ep4krFv5FoonT9gLWP
+                    | Address 2: 18hWsrJmh3cRT3rBf8iyd1gnNCPBYcA8yG
+                    | Address 3: 16cHMVMzmqqnExJyPqxLx1GfW7fEX8AECv
+                p
+                 b Intellectual Property ID   (Verify your IP Transaction with this ID)
+                p          
+                  textarea.form-control(name = "j_tx", style='height:60px;width:90%;') 
+                    | fa447e19911a4102a1159a2b38f929a989ee2183782f9b4d7ebcf877e5d243ca
+                p 
+                  a(href='https://blockchain.info/tx/'+'fa447e19911a4102a1159a2b38f929a989ee2183782f9b4d7ebcf877e5d243ca', target='_blank') Click here to see it in the Blockchain
+           

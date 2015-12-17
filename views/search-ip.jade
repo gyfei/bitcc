@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  body
+    .container
+      .jumbotron
+        h1 Protect Intellectual Property
+        h4 
+          i Search your creation stored in the Blockchain
+              p
+                div#filepart
+                form#fileForm(action='/search-ip', method='post') 
+                  label Input keywords:
+                    p
+                     input.form-control(type="text", name="keywords", id="keywords")
+                    p
+                     button.btn.btn-primary(type="submit") Search

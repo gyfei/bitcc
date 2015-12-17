@@ -1,0 +1,23 @@
+extends layout
+
+block content
+    .header.jumbotron.subhead
+        .row
+            
+                h1 Intellectual Property Protection
+                h4 
+                  i Verify your creation stored in the Blockchain
+                body
+                  p
+                    b
+                      textarea.form-control(name = "re", style='height:60px;width:90%;background-color:#80ff80;font-size:30px;font-family:verdana;text-align:center;') 
+                        | This file is in the Blockchain.
+                  p
+                    b Intellectual Property ID  
+                  p     
+                    b     
+                      textarea.form-control(name = "j_tx", style='height:60px;width:90%;font-size:20px;text-align:center;') 
+                        | fa447e19911a4102a1159a2b38f929a989ee2183782f9b4d7ebcf877e5d243ca
+                  p 
+                    a(href='https://blockchain.info/address/'+ '#{addr_veri}', target='_blank') Click here to see it in the Blockchain
+           

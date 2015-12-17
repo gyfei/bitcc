@@ -1,0 +1,204 @@
+  app.post('/rawtx_out', function(req, res) {
+    var pro_crea_name = new Buffer(req.body.pro_crea_name);
+    var other_info = new Buffer(req.body.other_info); 
+    var prod_hash = req.body.prod_hash; 
+
+// Turn String to Hex
+    function stringToHex(str){
+      var val="";
+      for(var i = 0; i < str.length; i++){
+        if(val == "")
+          val = str.charCodeAt(i).toString(16);
+        else
+          val += "" + str.charCodeAt(i).toString(16);
+      }
+      return val;
+    }
+
+// Check if the size is 2 bytes, if not, add 0 before it 
+    function checkHex2bytes(str){
+      if(str.length < 2)
+        str = '0' + str;
+      else
+        str = str;
+      return str;
+    }
+
+
+    var hex_pro_crea_name = stringToHex(pro_crea_name.toString('utf8'));
+    var hex_other_info = stringToHex(other_info.toString('utf8'));
+
+    var prev_hash = 'c7 1e f9 43 66 3e 40 62 02 7b 6b a9 a3 a7 9d 65 06 dd 51 d9 84 ad 4d c6 14 f2 c8 df 82 be 24 85';
+    var prev_hash_rv = prev_hash.split(" ").reverse().join("");
+      console.log(prev_hash_rv);
+
+  //--------Script-------------------------------------
+
+    var OP_RETURN = '6a';         // 0x6a = 109
+
+    var OP_DUP = '76';            // 0x76 = 118
+    var OP_HASH160 = 'a9';        // 0xa9 = 169
+    var OP_EQUALVERIFY = '88';    // 0x88 = 136
+    var OP_CHECKSIG = 'ac';       // 0xac = 172
+
+  //--------Script End---------------------------------
+
+
+  //-----------Raw TX Begin--------------------
+    var fee = '64000000';          // 0.0000100 BTC
+
+    var version_no = '01000000';
+    var tx_in_count = '01';
+      var prev_in = prev_hash_rv;
+      var txin_index = '03000000';
+    var script_length = '00';
+
+    var tx_in = tx_in_count + prev_in + txin_index + script_length;
+    var sequence = 'ffffffff';
+
+    var tx_out_count = '04';
+    // Output 0: usual output, send the change back
+    var value_0 = 'd8c4cc1d00000000'; // change
+
+    var pubKeyHash = '8ddeebf1fa6d679f00607c599670d55da7a1f66e';  // Kou
+    var pubKeyHash_size = checkHex2bytes((pubKeyHash.length/2).toString(16));
+    var scri_0 = OP_DUP + OP_HASH160 + pubKeyHash_size + pubKeyHash + OP_EQUALVERIFY + OP_CHECKSIG;
+    var scri_0_size = (scri_0.length/2).toString(16);
+  
+    var script_0 = value_0 + scri_0_size + scri_0;
+ 
+    var de_scri_0 = "OP_DUP OP_HASH160 " + pubKeyHash_size + pubKeyHash + " OP_EQUALVERIFY OP_CHECKSIG";
+    //---------------Output 0---------------------
+
+    // Output 1: title, creator
+    // OP_RETURN
+    var value_1 = '0000000000000000';   // Modify, change to big-endian by using bitcore API
+    var name_size = checkHex2bytes((hex_pro_crea_name.length/2).toString(16));
+    var scri_1 = OP_RETURN + name_size + hex_pro_crea_name;
+    var scri_1_size = (scri_1.length/2).toString(16);
+
+    var script_1 = value_1 + scri_1_size + scri_1;
+
+    var de_scri_1 = "OP_RETURN " + name_size + hex_pro_crea_name;
+    var decoded_1 = pro_crea_name.toString('utf8');
+    //-----------------Output 1-------------------
+
+    // Output 2: related info, like website, permission...
+    // OP_RETURN
+    var value_2 = '0000000000000000';   // 0.0001000 BTC
+    var rela_size = checkHex2bytes((hex_other_info.length/2).toString(16));
+    var scri_2 = OP_RETURN + rela_size + hex_other_info;
+    var scri_2_size = (scri_2.length/2).toString(16);
+
+    var script_2 = value_2 + scri_2_size + scri_2;
+
+    var de_scri_2 = "OP_RETURN " + rela_size + hex_other_info;
+    var decoded_2 = other_info.toString('utf8');
+    //-----------------Output 2-------------------
+
+
+    // Output 3: hash of the product
+    // OP_RETURN
+    var value_3 = '0000000000000000'; // 0.0001000 BTC
+    var phash_size = checkHex2bytes((prod_hash.length/2).toString(16));
+    var scri_3 = OP_RETURN + phash_size + prod_hash;
+    var scri_3_size = (scri_3.length/2).toString(16);
+
+    var script_3 = value_3 + scri_3_size + scri_3;
+
+    var de_scri_3 = "OP_RETURN " + phash_size + prod_hash;
+    var decoded_3 = prod_hash.toString('utf8');
+    //-----------------Output 3-------------------
+
+    var tx_out = tx_out_count + script_0 + script_1 + script_2 + script_3;
+
+    var locktime = '00000000';
+
+    var ori_raw_tx = version_no + tx_in + sequence + tx_out + locktime;
+
+    //console.log(ori_raw_tx);
+
+  //-----------Raw TX End----------------------
+
+
+  //----------- JSON TX Start -------------------
+  var txobj = {
+    hash: prev_hash.split(" ").join(""),
+    ver: 1, 
+    vin_sz: parseInt(tx_in_count),
+    vout_sz: parseInt(tx_out_count),
+    lock_time: parseInt(locktime), 
+    size: 0,
+    inputs: [],  
+    outputs: []
+  };
+
+  var txin = {
+    prev_out: []
+  };
+    var prev_out = {
+      index: txin_index,
+      hash: prev_hash_rv
+    }
+    txin.prev_out.push(prev_out);
+  txobj.inputs.push(txin);
+
+
+  var txout_0 = {
+    value: value_0,
+    scriptPubKey: scri_0,
+    script_type: "pay-to-pubkey-hash",
+    output_scripts: de_scri_0
+  };
+  txobj.outputs.push(txout_0);
+
+  var txout_1 = {
+    value: value_1,
+    scriptPubKey: scri_1,
+    script_type: "Data output",
+    output_scripts: de_scri_1,
+    decoded: decoded_1
+  };
+  txobj.outputs.push(txout_1);
+
+  var txout_2 = {
+    value: value_2,
+    scriptPubKey: scri_2,
+    script_type: "Data output",
+    output_scripts: de_scri_2,
+    decoded: decoded_2
+  };
+  txobj.outputs.push(txout_2);
+
+  var txout_3 = {
+    value: value_3,
+    scriptPubKey: scri_3,
+    script_type: "Data output",
+    output_scripts: de_scri_3,
+    decoded: decoded_3
+  };
+  txobj.outputs.push(txout_3);
+    
+  //----------- JSON TX End ---------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    res.render('rawtx_out', {
+           p_c: pro_crea_name, 
+           r_info: other_info,
+           p_hash: prod_hash,
+           ori_raw_tx: ori_raw_tx,
+           json_tx: JSON.stringify(txobj, null, '\t'),
+          });
+ })
