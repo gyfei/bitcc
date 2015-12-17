@@ -1,102 +1,48 @@
 extends layout
 
 block content
-    .header.jumbotron.subhead
-        .row
-            
-                h1 Proof with Blockchain -- Trusted Timstamping
-                body
-              
-                div#datapart
-                form#dataForm(action='/hash_data', method='post')
-                  label Please input some data:
-                    p
-                    input.form-control(type="text", name="userData", id="userData", placeholder='input some data here')
-                  label#hod Hash of data:
-                    p
-                    textarea.form-control(type="text", name="dataHash", id="dataHash", style='height:50px;width:500px;')
-                    br
-                    script(src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha256.js")
-                    script(src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/ripemd160.js")
-                    script.
-                      document.getElementById("hod").style.display="none";
-                      function count_dataHash(){
-                        var userData = document.getElementById("userData").value;
-                        var dataHash = CryptoJS.SHA256(userData);
-                        if(userData != ""){
-                          document.getElementById("dataHash").value = dataHash;
-                          document.getElementById("hod").style.hidden="block"; // hidden
-                        }
-                        else{
-                          alert("Please input some data.");
-                        }
-                      }
-                  label  
-                    p
-                    button.btn.btn-default(type="submit", onclick='count_dataHash()') Create Timestamp
-
-                br
+  body
+    .container
+      .jumbotron
+        h1 Protect Intellectual Property
+        h4 
+          i Store your creation in a tamper-proof transaction
+              p
                 div#filepart
-                form#fileForm(action='/hash_file', method='post') 
-                  label Input your name and your production's name:
+                form#fileForm(action='/pro_ip', method='post') 
+                  label Input file name and your name:
                     p
-                    input.form-control(type="text", name="relaData", id="relaData")
+                     input.form-control(type="text", name="pro_crea_name", id="pro_crea_name")
+                  label Input keywords of the file: 
+                    p
+                    input.form-control(type="text", name="other_info", id="other_info")
                   label Please select a file:
                     p
                     input.form-control(type="file", name="userFile",  id="userFile", enctype="multipart/form-data", placeholder='select a file')
                   label#dof Digest of file:
                     p
-                    textarea.form-control(type="text", name="fileHash", id="fileHash", style='height:50px;width:500px;')
+                    textarea.form-control(type="text", name="prod_hash", id="prod_hash", style='height:50px;width:500px;')
                     br
-                    script(src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha256.js")
+                    script(src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/ripemd160.js")
                     script.
                       document.getElementById("dof").style.display="none";
                       function handleFileSelect(evt) {
                         var files = evt.target.files; // FileList object
                         var output = [];
-                        if(files != ""){
+                          
                           for (var i = 0, f; f = files[i]; i++) {
                             var reader = new FileReader();
                             reader.onload = (function(theFile) {
                               return function(e) {
-                              //var div = document.createElement('span');
-                              //div.innerHTML = ['<p>', CryptoJS.SHA256(e.target.result)].join('');
-                              //document.getElementById('list').insertBefore(div, null);
-                              //var filehash = document.getElementById('list');
-                                var element = document.getElementById('fileHash');
-                                element.value = CryptoJS.SHA256(e.target.result);
-                                document.getElementById("dof").style.display="block";
+                                var element = document.getElementById('prod_hash');
+                                element.value = CryptoJS.RIPEMD160(e.target.result);
+                                document.getElementById("dof").style.hidden="block";
                               };
                             })(f);
                             reader.readAsDataURL(f);
                           }
-                        }
-                        else{
-                          alert("Please input some data.");
-                        }
-                       }
-                        document.getElementById('userFile').addEventListener('change', handleFileSelect, false);
-                  
+                      }
+                      document.getElementById('userFile').addEventListener('change', handleFileSelect, false);
                   label  
                     p
-                    button.btn.btn-default(type="submit") Create Timestamp
-                div#size.
-                  
-           //
-                br
-                div
-                form#hashForm(action='/get_hash', method='post')
-                  label Please input a hash value:
-                    p
-                    input.form-control(type="text", name="hashValue", id="hashValue", placeholder='input the hash value here')
-                  p
-                  button.btn.btn-default(type="submit") Send the hash
-                  
-               
-
-
-
-                  
-
-                
-                
+                    button.btn.btn-primary(type="submit") Get Timestamp

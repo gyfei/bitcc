@@ -8,14 +8,52 @@ var Address = bitcore.Address;
 var Script = bitcore.Script;
 var coinUtil = bitcore.util;
 var crypto = require('crypto');
+var bs58 = require('bs58')
+
+
+var http = require('http');
+/*
+var options = {
+    host: 'google.com',
+    path: '/'
+}
+var request = http.request(options, function (res) {
+    var data = '';
+    res.on('data', function (chunk) {
+        data += chunk;
+    });
+    res.on('end', function () {
+        console.log(data);
+
+    });
+});
+*/
+// Turn String to Hex
+    function stringToHex(str){
+      var val="";
+      for(var i = 0; i < str.length; i++){
+        if(val == "")
+          val = str.charCodeAt(i).toString(16);
+        else
+          val += "" + str.charCodeAt(i).toString(16);
+      }
+      return val;
+    }
+
+
 
 module.exports = function(app) {
 
   // Home/main
   app.get('/', function(req, res) {
-    res.render('index', { title: 'myOri' })
+    res.render('index', { title: 'index' })
  })
-
+  app.get('/verify-ip', function(req, res) {
+    res.render('verify-ip', { title: 'Verify' })
+ })
+  app.get('/search-ip', function(req, res) {
+    res.render('search-ip', { title: 'Search' })
+ })
 
   app.post('/hash_data', function(req, res){  
       // get data from dataFrom in index.jade
@@ -59,9 +97,9 @@ module.exports = function(app) {
     };
     //console.log(utxo);
     
-    var tx_in_hash = 'cd 33 f0 ae 5d 74 f2 a6 d8 5b d8 69 85 65 a0 60 88 7c 30 68 ee 28 d7 59 e6 c9 02 1b 2c ea 66 ce';
-    var tx_in_hash_rv = tx_in_hash.split(" ").reverse().join("");
-    console.log(tx_in_hash_rv);
+    //var tx_in_hash = '55 c4 a1 da 80 cd ee 01 c4 ba 5b a4 17 98 d6 47 51 f1 62 75 63 66 82 7a 6f e3 7c 5f cb c6 3f 0b';
+    //var tx_in_hash_rv = tx_in_hash.split(" ").reverse().join("");
+    //console.log(tx_in_hash_rv);
 
 
 
@@ -76,25 +114,15 @@ module.exports = function(app) {
   })
 
   app.get('/my-origami', function(req, res) {
-    res.render('my-origami', { title: 'myOrigami' })
+    res.render('my-origami', { title: 'myOrigami' });
  })
 
-  app.post('/rawtx_out', function(req, res) {
+  app.post('/pro_ip', function(req, res) {
     var pro_crea_name = new Buffer(req.body.pro_crea_name);
     var other_info = new Buffer(req.body.other_info); 
     var prod_hash = req.body.prod_hash; 
+    console.log(prod_hash);
 
-// Turn String to Hex
-    function stringToHex(str){
-      var val="";
-      for(var i = 0; i < str.length; i++){
-        if(val == "")
-          val = str.charCodeAt(i).toString(16);
-        else
-          val += "" + str.charCodeAt(i).toString(16);
-      }
-      return val;
-    }
 
 // Check if the size is 2 bytes, if not, add 0 before it 
     function checkHex2bytes(str){
@@ -109,9 +137,11 @@ module.exports = function(app) {
     var hex_pro_crea_name = stringToHex(pro_crea_name.toString('utf8'));
     var hex_other_info = stringToHex(other_info.toString('utf8'));
 
-    var prev_hash = '2d f4 78 69 2a 83 f6 4f fc f0 ce f8 79 e4 75 34 43 11 23 eb 1e 56 5e d8 3a a0 79 2d f0 28 7b d3';
+    var prev_hash = '62 35 1b 66 f7 62 bf 53 c9 5e 9f 3f a6 a6 73 eb fe 48 7f bb f4 47 16 25 04 f4 ce d1 04 c8 a7 ff';
     var prev_hash_rv = prev_hash.split(" ").reverse().join("");
       console.log(prev_hash_rv);
+
+    
 
   //--------Script-------------------------------------
 
@@ -259,23 +289,11 @@ module.exports = function(app) {
     decoded: decoded_3
   };
   txobj.outputs.push(txout_3);
+
     
   //----------- JSON TX End ---------------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    res.render('rawtx_out', {
+    res.render('pro_ip', {
            p_c: pro_crea_name, 
            r_info: other_info,
            p_hash: prod_hash,
@@ -283,4 +301,66 @@ module.exports = function(app) {
            json_tx: JSON.stringify(txobj, null, '\t'),
           });
  })
+
+/*
+app.post('/verify-ip', function(req, res) {
+    res.render('verify-result', {});
+ })*/
+
+app.post('/verify-ip', function(req, res) {
+  var veri_hash = req.body.veri_hash;
+  var veri_hash_str = '00' + veri_hash.toString() + '34eea55f'; 
+  console.log(veri_hash);
+
+    if(veri_hash == '3d84d6ae1e88b66e92a2d68c459c2c8700359fde'){
+      var bs58_veri_hash = bs58.encode(new Buffer(veri_hash_str, 'hex'))
+      console.log(bs58_veri_hash);
+/*
+      var http = require('https');
+      var url = 'https://blockchain.info/rawtx/fa447e19911a4102a1159a2b38f929a989ee2183782f9b4d7ebcf877e5d243ca';
+        http.get(url, function(res){
+          var body = '';
+          res.setEncoding('utf8');
+          res.on('data', function(chunk){
+            body += chunk;
+          });
+ 
+          res.on('end', function(res){
+            ret = JSON.parse(body);
+            //console.log(ret);
+          });
+        }).on('error', function(e){
+            console.log(e.message); //エラー時
+            
+            });
+        */
+        res.render('verify-result', {
+            addr_veri:bs58_veri_hash,
+        });
+    }
+    else if(veri_hash == ''){
+      res.render('verify-ip', {});
+      console.log("No file input to be verify.");
+
+    }
+    else{
+      res.render('verify-result-fail', {});
+            
+    }
+})
+
+
+
+
+app.post('/search-ip', function(req, res) {
+    res.render('search-result', { title: 'Search' });
+ })
+
+
+
+
+
+
+
+
 }

@@ -11,15 +11,15 @@ html(lang='en')
                     span.icon-bar
                     span.icon-bar
                     span.icon-bar
-                a.brand myOrigami
+                a.brand(href="/")  IPP
                 .nav-collapse
                 ul.nav
-                    li(class=title=='myOrigami'?'active':undefined)
-                        a(href="/my-origami") Home
-                    li(class=title=='Get Timestamp'?'active':undefined)
-                        a(href="/my-origami") Get Timestamp
-                    li(class=title=='Find my Origami'?'active':undefined)
-                        a(href="/find-ori") Find my Origami
+                    li(class=title=='Get Timestamp'?'active':onclick)
+                        a(href="/") Protect
+                    li(class=title=='Verify'?'active':onclick)
+                        a(href="/verify-ip") Verify
+                    li(class=title=='Search'?'active':onclick)
+                        a(href="/search-ip") Search
                     
 
     .container
@@ -28,7 +28,7 @@ html(lang='en')
 
         block footer
             footer.page-footer
-                p &copy; myOrigami 2015
+                p &copy; IPP Gao 2015
 
 
     script(src='/components/jquery/jquery.min.js')

@@ -4,17 +4,17 @@ block content
   body
     .container
       .jumbotron
-        h1 Proof with Blockchain -- Trusted Timstamping
-
+        h1 Protect your origami
+              p
                 div#filepart
                 form#fileForm(action='/rawtx_out', method='post') 
-                  label Input your production's name and your name (Less than 20 characters): (e.g. Crane by Karry)
+                  label Input file's name and your name:
                     p
                      input.form-control(type="text", name="pro_crea_name", id="pro_crea_name")
-                  label Input other information if necessary (Less than 20 characters): (e.g. xxxxx.com/)
+                  label Input other information if necessary: 
                     p
                     input.form-control(type="text", name="other_info", id="other_info")
-                  label Please select your origami file:
+                  label Please select a file:
                     p
                     input.form-control(type="file", name="userFile",  id="userFile", enctype="multipart/form-data", placeholder='select a file')
                   label#dof Digest of file:
@@ -43,4 +43,4 @@ block content
                       document.getElementById('userFile').addEventListener('change', handleFileSelect, false);
                   label  
                     p
-                    button.btn.btn-primary(type="submit") Create Transaction
+                    button.btn.btn-primary(type="submit") Protect

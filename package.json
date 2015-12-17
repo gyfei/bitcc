@@ -29,6 +29,7 @@
   "dependencies": {
     "bitcore": "*",
     "body-parser": "*",
+    "bs58": "^3.0.0",
     "connect-cachify": "*",
     "errorhandler": "*",
     "express": "*",
