@@ -53,6 +53,9 @@ module.exports = function(app) {
     }
   }) 
 
+  app.get('/ori_proof', function(req, res) {
+    res.render('ori_proof', { title: 'OriProof' });
+ })
 
   app.post('/hash_file', function (req, res) {
     // get input file name
@@ -91,7 +94,7 @@ module.exports = function(app) {
     res.render('my-origami', { title: 'myOrigami' });
  })
 
-  app.post('/pro_ip', function(req, res) {
+  app.post('/ori_proof', function(req, res) {
     var pro_crea_name = new Buffer(req.body.pro_crea_name);
     var other_info = new Buffer(req.body.other_info); 
     var prod_hash = req.body.prod_hash; 
